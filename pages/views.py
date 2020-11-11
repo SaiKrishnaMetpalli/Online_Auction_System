@@ -15,12 +15,12 @@ def login_view(request,*args,**kwargs):
 		get_user_details=UserProfiles.objects.filter(emailid=user_email, password=user_password)
 		if len(get_user_details)!=0:
 			get_user_details=UserProfiles.objects.get(emailid=user_email, password=user_password)
-			send_mail(
-			    subject = "Login Successfull",
-			    message = "You have logged in successfully",
-			    from_email = "noreply@auctionsystem.com",
-			    recipient_list = ["saikrishnametpalli@gmail.com",],
-			)
+			# send_mail(
+			#     subject = "Login Successfull",
+			#     message = "You have logged in successfully",
+			#     from_email = "noreply@auctionsystem.com",
+			#     recipient_list = ["saikrishnametpalli@gmail.com",],
+			# )
 			return HttpResponseRedirect(reverse('home-view', kwargs={"userid": get_user_details.userid}))
 		else:
 			context={
