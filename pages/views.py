@@ -3,6 +3,10 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from userprofiles.models import UserProfiles
 from django.core.mail import send_mail
+from products.models import Product
+from .forms import ProductForm
+from django.core.paginator import Paginator
+import datetime
 
 # Create your views here.
 def login_view(request,*args,**kwargs):
@@ -15,7 +19,8 @@ def login_view(request,*args,**kwargs):
 		get_user_details=UserProfiles.objects.filter(emailid=user_email, password=user_password)
 		if len(get_user_details)!=0:
 			get_user_details=UserProfiles.objects.get(emailid=user_email, password=user_password)
-			
+			request.session['userid'] = get_user_details.userid
+			request.session['isadmin'] = get_user_details.isadmin
 			return HttpResponseRedirect(reverse('home-view', kwargs={"userid": get_user_details.userid}))
 		else:
 			context={
@@ -24,8 +29,14 @@ def login_view(request,*args,**kwargs):
 	return render(request,"login.html",context)
 
 
-def home_view(request,userid):
-	print(userid)
+def home_view(request,*args,**kwargs):
+	#print(kwargs["userid"])
+	if request.GET.get('option') != None:
+		if request.GET.get('option') == 'upload_product':
+			return HttpResponseRedirect(reverse('upload-product-view'))
+		elif request.GET.get('option') == 'products_list':
+			return HttpResponseRedirect(reverse('products-list-view'))
+
 	return render(request,"home.html",{})
 
 def register_view(request,*args,**kwargs):
@@ -55,3 +66,22 @@ def register_view(request,*args,**kwargs):
 			}
 	
 	return render(request,"registeruser.html",context)
+
+
+def upload_product_view(request,*args,**kwargs):
+	print('offer item ',kwargs)
+	form = ProductForm()
+	if request.method == 'POST':
+		form = ProductForm(request.POST or None,request.FILES)
+		if form.is_valid():
+			print('session userid ',request.session['userid'])
+			form = form.save(commit=False)
+			form.userid = request.session['userid']
+			form.save()
+			form = ProductForm()
+			return HttpResponseRedirect(reverse('home-view'))
+
+	context = {
+		'form':form
+	}
+	return render(request,"uploadproduct.html",context)

@@ -18,15 +18,17 @@
 		    </div>
 		    <ul class="nav navbar-nav">
 		    	<li><a href="#">Users List</a></li>
-		    	<li><a href="#">Products List</a></li>
-		      	<li><a href="#">Upload Product</a></li>
+		    	<li><a href="?option=products_list">Products List</a></li>
+		      	<li><a href="?option=upload_product">Upload Product</a></li>
 		      	<li><a href="#">Bid Product</a></li>
 		      	<li><a href="#">View Purchases</a></li>		      
 		    </ul>
 		  </div>
 		</nav>
 		<p>
+		{% block content%}
 		Hello {{request.user}} <br/> 
+		{% endblock %}
 		</p>
 	</body>	
 </html>
