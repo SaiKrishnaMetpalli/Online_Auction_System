@@ -85,3 +85,59 @@ def upload_product_view(request,*args,**kwargs):
 		'form':form
 	}
 	return render(request,"uploadproduct.html",context)
+
+
+def products_list_view(request, *args, **kwargs):
+	all_products = Product.objects.all()
+	print('pg no ',request.GET.get('page'))
+	if request.GET.get('page') == None:
+		page_number = 1
+	else:
+		page_number = request.GET.get('page')
+
+	if request.GET.get('productid') != None:
+		product_id = request.GET.get('productid')
+		print('productid',product_id)
+		return HttpResponseRedirect(reverse('product-view',kwargs={"productid": product_id}))
+
+	paginator = Paginator(all_products, 8) # 8 items per page
+	products = paginator.page(page_number)
+	return render(request, 'viewlistings.html', {'products': products})
+
+def product_view(request, *args, **kwargs):
+	context = {}
+	if len(kwargs) != 0 :
+		print(kwargs)
+		product=Product.objects.get(productid=kwargs["productid"])
+		print(request.session['isadmin'] )
+		if product.endtime :
+			bidtime = product.endtime
+			bidtime  = str(bidtime)[:-6]
+		else:
+			bidtime = datetime.datetime.now()
+
+		print('bidtime',bidtime)
+		context={
+			"productid" : kwargs["productid"],
+			"product" : product,
+			"isadmin" : request.session['isadmin'], 
+			#"bidtime" : "Nov 17, 2020 15:45:25"
+			#"bidtime" : "2020-11-17 15:47:17.012056"
+			"bidtime" : bidtime
+		}
+	print(request.POST)
+	if(request.POST.get('Option') == 'start_bidding'):
+		print(request.POST.get("productid"))
+		print("Time now - ", datetime.datetime.now()+datetime.timedelta(minutes = 5))
+		product=Product.objects.get(productid=request.POST.get("productid"))
+		product.endtime = datetime.datetime.now()+datetime.timedelta(minutes = 5)
+		product.save()
+		context={
+			"productid" : request.POST.get("productid"),
+			"product" : product,
+			"isadmin" : request.session['isadmin'], 
+			"bidtime" : product.endtime
+		}
+
+
+	return render(request, 'viewproduct.html',context)

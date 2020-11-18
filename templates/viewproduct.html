@@ -1,0 +1,79 @@
+{% extends 'home.html' %}
+
+{% block content %}
+	<style>
+table, th, td {
+  border: 0 ;
+}
+
+
+
+th, td {
+  padding: 10px;
+}
+</style>
+	<body>
+		<script>
+	//var countDownDate = new Date("Nov 17, 2020 15:45:25").getTime();
+	var countDownDate = new Date("{{ bidtime|safe}}").getTime();
+	var x = setInterval(function() {
+	var now = new Date().getTime();
+	var distance = countDownDate - now;
+	var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+	var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+	document.getElementById("time_remaining").innerHTML = minutes + "m " + seconds + "s ";
+	if (distance < 0) {
+	  clearInterval(x);
+	  document.getElementById("time_remaining").innerHTML = "EXPIRED";
+	}
+}, 1000);
+</script>
+
+<div align="center" style="margin-top: 100px; ">
+<br/>
+<img src="/{{product.image}}" width="450px" style="float: left;margin-left: 10px" >
+<br/>
+<form method="POST" action="." >
+	  {% csrf_token %}
+ <table border="0" >
+ 	  <tr>
+        <th>Time remaining:</th>
+        <td >
+        <a id="time_remaining"></a>
+        </td>
+      </tr>
+      
+      <tr>
+        <th>Product Name:</th>
+        <td>
+         {{product.productname}}
+        </td>
+      </tr>
+      <tr>
+        <th>Product Category:</th>
+        <td>
+         {{product.category}}
+        </td>
+      </tr>
+      <tr>
+        <th>Product Description:</th>
+        <td>
+         {{product.description}}
+        </td>
+      </tr>
+      <tr>
+        <th>Price:</th>
+        <td>
+         {{product.price}}
+        </td>
+      </tr>
+     </table>
+     <input type="hidden" name="productid" value="{{ product.productid }}">
+     {% if isadmin == True %}
+     	<button type="submit" name="Option" value="start_bidding">Start Bidding</button>
+     {% else %}
+     	<button type="submit" name="Option" value="bid">Bid</button>
+     {% endif %}
+</form>
+</div>
+{% endblock %}
