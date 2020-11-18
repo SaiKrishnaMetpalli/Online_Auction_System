@@ -3,7 +3,7 @@ html{
 
 }
 
-body{
+body.background{
 	background-image: url("../images/auctionimage.png");
 	height:100%;
 	background-position: center top;
@@ -42,4 +42,27 @@ label{
 
 .input-group-addon{
 	border-radius: 0px;
+}
+
+.alert{
+	padding:10px;
+}
+
+.close{
+	right:0px !important;
+}
+
+.navbar-default{
+	background-color: #00C6FA ;
+	border-color: #00C6FA;
+}
+
+.navbar-default a{
+	color: white !important;
+}
+
+.navbar-default a:hover{
+	background-color: white !important ;
+	border-color: white !important;
+	color: #00C6FA !important;
 }

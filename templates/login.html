@@ -10,7 +10,7 @@
 		{% load static %}  
 		<link href="{% static 'css/main.css' %}" rel="stylesheet">
 	</head>
-	<body>
+	<body class="background">
 		<form action="." method="POST">{% csrf_token %}
 			<div class="container">
 				<div class="row" style="height:180px">
@@ -25,6 +25,12 @@
 						<br>
 						<br>
 						<br>
+						{% if error_message %}
+							<div class="alert alert-danger alert-dismissible col-md-12" role="alert">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+							  	<label>{{error_message}}</label>
+							</div>
+						{% endif %}						
 						<br>
 						<br>
 
@@ -39,8 +45,7 @@
 						<br>
 						<div class="col-md-12"><button type="submit" class="btn btn-primary" style="width:100%;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">Login</button></div>
 						<br>
-						<br>
-						<label style="color: red;display: {{error_message}}" class="col-md-12">Invalid Email/Password</label>	
+						<br>						
 						<br>
 						<div class="col-md-6"><a href="registeruser/" style="color: #00C6FA;">Register User</a></div>
 						<div class="col-md-6"><a href="#" style="color: #00C6FA;">Forgot Your Password?</a></div>
