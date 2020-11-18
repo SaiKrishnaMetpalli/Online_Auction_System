@@ -31,12 +31,7 @@ def login_view(request,*args,**kwargs):
 
 def home_view(request,*args,**kwargs):
 	#print(kwargs["userid"])
-	if request.GET.get('option') != None:
-		if request.GET.get('option') == 'upload_product':
-			return HttpResponseRedirect(reverse('upload-product-view'))
-		elif request.GET.get('option') == 'products_list':
-			return HttpResponseRedirect(reverse('products-list-view'))
-
+	
 	return render(request,"home.html",{})
 
 def register_view(request,*args,**kwargs):

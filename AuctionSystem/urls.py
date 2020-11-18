@@ -22,9 +22,9 @@ urlpatterns = [
     path('registeruser/', register_view, name="register-view"),
 	path('home/<int:userid>', home_view, name='home-view'),
     path('home/', home_view, name='home-view'),
-    path('uploadproduct/', upload_product_view, name="upload-product-view"),
+    path('home/uploadproduct/', upload_product_view, name="upload-product-view"),
     path('viewproduct/<int:productid>', product_view, name='product-view'),
-    path('productslist/', products_list_view, name='products-list-view'),
+    path('home/productslist/', products_list_view, name='products-list-view'),
     path('viewproduct/', product_view, name='product-view'),
     path('admin/', admin.site.urls),
 ]
