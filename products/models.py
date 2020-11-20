@@ -12,3 +12,5 @@ class Product(models.Model):
 	quantity = models.IntegerField()
 	image = models.ImageField(blank = True, null =True, upload_to='static/images/')
 	endtime = models.DateTimeField(blank = True, null =True)
+	highestbid = models.DecimalField(decimal_places=2,max_digits=7, null=True)
+	highestbid_userid = models.IntegerField(blank = True, null =True)

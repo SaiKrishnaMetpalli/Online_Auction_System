@@ -2,8 +2,12 @@
 
 {% block content %}
 	<style>
+    #bid_amount{
+       display : none;
+    }
 table, th, td {
   border: 0 ;
+  max-width: 600px;
 }
 
 
@@ -15,6 +19,7 @@ th, td {
 	<body>
 		<script>
 	//var countDownDate = new Date("Nov 17, 2020 15:45:25").getTime();
+  //alert( "{{ bidtime }}" )
 	var countDownDate = new Date("{{ bidtime|safe}}").getTime();
 	var x = setInterval(function() {
 	var now = new Date().getTime();
@@ -25,8 +30,17 @@ th, td {
 	if (distance < 0) {
 	  clearInterval(x);
 	  document.getElementById("time_remaining").innerHTML = "EXPIRED";
+    document.getElementById("bidButton").hidden = true;
 	}
 }, 1000);
+
+function bid_details() {
+  var x = document.getElementById("bid_amount");
+  x.style.display = "block";
+  
+}
+
+
 </script>
 
 <div align="center" style="margin-top: 100px; ">
@@ -64,7 +78,13 @@ th, td {
       <tr>
         <th>Price:</th>
         <td>
-         {{product.price}}
+         $ {{product.price}}
+        </td>
+      </tr>
+      <tr>
+        <th>Current Highest Bid:</th>
+        <td>
+         $ {{product.highestbid}}
         </td>
       </tr>
      </table>
@@ -72,8 +92,13 @@ th, td {
      {% if isadmin == True %}
      	<button type="submit" name="Option" value="start_bidding">Start Bidding</button>
      {% else %}
-     	<button type="submit" name="Option" value="bid">Bid</button>
+     	<button type="button" onclick="bid_details()" style="font-size: 20px;color: green;" id="bidButton">Bid</button>
      {% endif %}
+     <br/>
+     <br/>
+     <div id="bid_amount">Enter bid amount: <input name="bid_price" type="number" />
+      <button type="submit" name="Option" value="bid">Submit</button>
+    </div>
 </form>
 </div>
 {% endblock %}

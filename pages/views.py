@@ -120,19 +120,28 @@ def product_view(request, *args, **kwargs):
 			#"bidtime" : "2020-11-17 15:47:17.012056"
 			"bidtime" : bidtime
 		}
-	print(request.POST)
-	if(request.POST.get('Option') == 'start_bidding'):
-		print(request.POST.get("productid"))
-		print("Time now - ", datetime.datetime.now()+datetime.timedelta(minutes = 5))
+	print(request.POST.get('Option'))
+
+	if request.POST.get('Option') != None :
 		product=Product.objects.get(productid=request.POST.get("productid"))
-		product.endtime = datetime.datetime.now()+datetime.timedelta(minutes = 5)
-		product.save()
-		context={
-			"productid" : request.POST.get("productid"),
-			"product" : product,
-			"isadmin" : request.session['isadmin'], 
-			"bidtime" : product.endtime
+		context ={
+		"productid" : request.POST.get("productid"),
+		"product" : product,
+		"isadmin" : request.session['isadmin'],
 		}
 
+		if request.POST.get('Option') == 'start_bidding' :	
+			product.endtime = datetime.datetime.now()+datetime.timedelta(minutes = 5)
+			product.save()
+			context["bidtime"] = product.endtime
+
+		if request.POST.get('Option') == 'bid' :
+			bid_price = request.POST.get("bid_price")
+			product.highestbid = bid_price
+			product.highestbid_userid = request.session['userid']
+			product.save()
+			context["bidtime"] = str(product.endtime)[:-6]
+
+        
 
 	return render(request, 'viewproduct.html',context)
