@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 from products.models import Product
 from .forms import ProductForm
 from django.core.paginator import Paginator
+from decimal import Decimal
 import datetime
 
 # Create your views here.
@@ -137,9 +138,12 @@ def product_view(request, *args, **kwargs):
 
 		if request.POST.get('Option') == 'bid' :
 			bid_price = request.POST.get("bid_price")
-			product.highestbid = bid_price
-			product.highestbid_userid = request.session['userid']
-			product.save()
+			if product.highestbid < Decimal(bid_price) :
+				product.highestbid = Decimal(bid_price)
+				product.highestbid_userid = request.session['userid']
+				product.save()
+			else:
+				context["error"] = "Bid amount should be greater than current highest bid price"
 			context["bidtime"] = str(product.endtime)[:-6]
 
         

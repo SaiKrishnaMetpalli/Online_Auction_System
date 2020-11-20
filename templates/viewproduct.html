@@ -20,6 +20,9 @@ th, td {
 		<script>
 	//var countDownDate = new Date("Nov 17, 2020 15:45:25").getTime();
   //alert( "{{ bidtime }}" )
+  error ="{{error}}"
+  if(Boolean(error))
+    alert(error)
 	var countDownDate = new Date("{{ bidtime|safe}}").getTime();
 	var x = setInterval(function() {
 	var now = new Date().getTime();
