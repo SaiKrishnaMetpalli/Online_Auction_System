@@ -8,6 +8,10 @@ from .forms import ProductForm
 from django.core.paginator import Paginator
 from decimal import Decimal
 import datetime
+from background_task import background
+from django.contrib.auth.models import User
+import subprocess
+
 
 # Create your views here.
 def login_view(request,*args,**kwargs):
@@ -32,8 +36,12 @@ def login_view(request,*args,**kwargs):
 
 def home_view(request,*args,**kwargs):
 	#print(kwargs["userid"])
+	current_user = UserProfiles.objects.get(userid = request.session['userid'])
+	context={
+		"username" : current_user.firstname + current_user.lastname
+	}
 	
-	return render(request,"home.html",{})
+	return render(request,"home.html",context)
 
 def register_view(request,*args,**kwargs):
 	context={
@@ -132,20 +140,61 @@ def product_view(request, *args, **kwargs):
 		}
 
 		if request.POST.get('Option') == 'start_bidding' :	
-			product.endtime = datetime.datetime.now()+datetime.timedelta(minutes = 5)
+			product.endtime = datetime.datetime.now()+datetime.timedelta(minutes = 1)
 			product.save()
 			context["bidtime"] = product.endtime
+			notify_or_restart(product.productid)
+			subprocess.Popen("python manage.py process_tasks --sleep 60", shell=True)
+
 
 		if request.POST.get('Option') == 'bid' :
 			bid_price = request.POST.get("bid_price")
-			if product.highestbid < Decimal(bid_price) :
+			if product.highestbid == None :
+				if product.price < Decimal(bid_price) :
+					product.highestbid = Decimal(bid_price)
+					product.winnerid = request.session['userid']
+					product.save()
+				else:
+					context["error"] = "Bid amount should be greater than current highest bid price or base price"
+			elif product.highestbid < Decimal(bid_price):
 				product.highestbid = Decimal(bid_price)
-				product.highestbid_userid = request.session['userid']
+				product.winnerid = request.session['userid']
 				product.save()
 			else:
-				context["error"] = "Bid amount should be greater than current highest bid price"
+				context["error"] = "Bid amount should be greater than current highest bid price or base price"
+
 			context["bidtime"] = str(product.endtime)[:-6]
-
-        
-
+			
 	return render(request, 'viewproduct.html',context)
+
+
+
+
+@background(schedule=60)
+def notify_or_restart(productid):
+	print(productid)
+	product=Product.objects.get(productid=productid)
+	print(product.productid)
+	seller_user = UserProfiles.objects.get(userid=product.userid)
+	if product.winnerid:
+		winner_user = UserProfiles.objects.get(userid=product.winnerid)
+		send_mail(
+			    subject = "Auction Result : Congratulations - you have won !",
+			    message = "You have have won "+product.productname+"\n\nOnline Auction System",
+			    from_email = "noreply@onlineauctionsystem.com",
+			    recipient_list = [winner_user.emailid,],
+			)
+		send_mail(
+			    subject = "Auction Result - Your product is sold",
+			    message = "Congratulations, your product is sold to "+winner_user.firstname +" "+winner_user.lastname +"\n\nOnline Auction System",
+			    from_email = "noreply@onlineauctionsystem.com",
+			    recipient_list = [seller_user.emailid,],
+			)
+	else:
+		product.endtime = datetime.datetime.now()+datetime.timedelta(minutes = 1)
+		product.save()
+		notify_or_restart(product.productid)
+		subprocess.Popen("python manage.py process_tasks --sleep 60", shell=True)
+		
+
+
