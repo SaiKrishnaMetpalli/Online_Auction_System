@@ -168,6 +168,25 @@ def product_view(request, *args, **kwargs):
 	return render(request, 'viewproduct.html',context)
 
 
+def purchases_view(request, *args, **kwargs):
+	my_products = Product.objects.filter(winnerid = request.session["userid"])
+	print('pg no ',request.GET.get('page'))
+	if request.GET.get('page') == None:
+		page_number = 1
+	else:
+		page_number = request.GET.get('page')
+
+	if request.GET.get('productid') != None:
+		product_id = request.GET.get('productid')
+		print('productid',product_id)
+		return HttpResponseRedirect(reverse('product-view',kwargs={"productid": product_id}))
+
+	paginator = Paginator(my_products, 8) # 8 items per page
+	products = paginator.page(page_number)
+	return render(request, 'viewlistings.html', {'products': products})
+
+
+
 
 
 @background(schedule=60)
