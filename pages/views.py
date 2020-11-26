@@ -143,6 +143,7 @@ def product_view(request, *args, **kwargs):
 			product.endtime = datetime.datetime.now()+datetime.timedelta(minutes = 1)
 			product.save()
 			context["bidtime"] = product.endtime
+			notify_users(product.productname)
 			notify_or_restart(product.productid)
 			subprocess.Popen("python manage.py process_tasks --sleep 60", shell=True)
 
@@ -154,12 +155,14 @@ def product_view(request, *args, **kwargs):
 					product.highestbid = Decimal(bid_price)
 					product.winnerid = request.session['userid']
 					product.save()
+					notify_change(product.productname, product.highestbid )
 				else:
 					context["error"] = "Bid amount should be greater than current highest bid price or base price"
 			elif product.highestbid < Decimal(bid_price):
 				product.highestbid = Decimal(bid_price)
 				product.winnerid = request.session['userid']
 				product.save()
+				notify_change(product.productname, product.highestbid )
 			else:
 				context["error"] = "Bid amount should be greater than current highest bid price or base price"
 
@@ -186,7 +189,27 @@ def purchases_view(request, *args, **kwargs):
 	return render(request, 'viewlistings.html', {'products': products})
 
 
+def notify_users(productname):
+	all_users = UserProfiles.objects.filter(isadmin = False);
+	list_email = [d['emailid'] for d in all_users.values('emailid')] 
+	print(list_email)
+	# send_mail(
+	#     subject = "Online Auction : Product is on sale, Hurry!",
+	#     message = "Product is on sale :"+productname+"\nYou have 5 mins to bid until the auction ends.\n\nOnline Auction System",
+	#     from_email = "noreply@onlineauctionsystem.com",
+	#     recipient_list = list_email,
+	# )
 
+def notify_change(productname,bidprice):
+	all_users = UserProfiles.objects.filter(isadmin = False);
+	list_email = [d['emailid'] for d in all_users.values('emailid')] 
+	print(list_email)
+	# send_mail(
+	#     subject = "Online Auction : Bidding is on, Hurry!",
+	#     message = "Product is on sale :"+productname+"\nNew Bid Price: $"+str(bidprice)+"\nYou have 5 mins to bid until the auction ends.\n\nOnline Auction System",
+	#     from_email = "noreply@onlineauctionsystem.com",
+	#     recipient_list = list_email,
+	# )
 
 
 @background(schedule=60)
