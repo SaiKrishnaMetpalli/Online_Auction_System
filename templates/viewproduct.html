@@ -18,32 +18,30 @@ th, td {
 </style>
 	<body>
 		<script>
-	//var countDownDate = new Date("Nov 17, 2020 15:45:25").getTime();
-  //alert( "{{ bidtime }}" )
-  error ="{{error}}"
-  if(Boolean(error))
-    alert(error)
-	var countDownDate = new Date("{{ bidtime|safe}}").getTime();
-	var x = setInterval(function() {
-	var now = new Date().getTime();
-	var distance = countDownDate - now;
-	var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-	var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-	document.getElementById("time_remaining").innerHTML = minutes + "m " + seconds + "s ";
-	if (distance < 0) {
-	  clearInterval(x);
-	  document.getElementById("time_remaining").innerHTML = "EXPIRED";
-    document.getElementById("bidButton").hidden = true;
-	}
-}, 1000);
+    	//var countDownDate = new Date("Nov 17, 2020 15:45:25").getTime();
+      //alert( "{{ bidtime }}" )
+      error ="{{error}}"
+      if(Boolean(error))
+        alert(error)
+    	var countDownDate = new Date("{{ bidtime|safe}}").getTime();
+    	var x = setInterval(function() {
+    	var now = new Date().getTime();
+    	var distance = countDownDate - now;
+    	var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    	var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    	document.getElementById("time_remaining").innerHTML = minutes + "m " + seconds + "s ";
+    	if (distance < 0) {
+    	  clearInterval(x);
+    	  document.getElementById("time_remaining").innerHTML = "EXPIRED";
+        document.getElementById("bidButton").hidden = true;
+    	}
+    }, 1000);
 
-function bid_details() {
-  var x = document.getElementById("bid_amount");
-  x.style.display = "block";
-  
-}
-
-
+    function bid_details() {
+      var x = document.getElementById("bid_amount");
+      x.style.display = "block";
+      
+    }
 </script>
 
 <div align="center" style="margin-top: 100px; ">

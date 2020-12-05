@@ -15,6 +15,8 @@ import subprocess
 
 # Create your views here.
 def login_view(request,*args,**kwargs):
+	request.session['userid']=""
+	request.session['isadmin']=""
 	context={
 		"error_message":""
 	}
@@ -26,7 +28,7 @@ def login_view(request,*args,**kwargs):
 			get_user_details=UserProfiles.objects.get(emailid=user_email, password=user_password)
 			request.session['userid'] = get_user_details.userid
 			request.session['isadmin'] = get_user_details.isadmin
-			return HttpResponseRedirect(reverse('home-view', kwargs={"userid": get_user_details.userid}))
+			return HttpResponseRedirect(reverse('home-view'))
 		else:
 			context={
 				"error_message":"Invalid Email/Password"
@@ -35,11 +37,13 @@ def login_view(request,*args,**kwargs):
 
 
 def home_view(request,*args,**kwargs):
-	#print(kwargs["userid"])
-	current_user = UserProfiles.objects.get(userid = request.session['userid'])
-	context={
-		"username" : current_user.firstname + current_user.lastname
-	}
+	if request.session['userid']!="":		
+		current_user = UserProfiles.objects.get(userid = request.session['userid'])
+		context={
+			"username" : current_user.firstname + " " + current_user.lastname
+		}
+	else:
+		return HttpResponseRedirect(reverse('login-view'))
 	
 	return render(request,"home.html",context)
 
@@ -239,4 +243,11 @@ def notify_or_restart(productid):
 		subprocess.Popen("python manage.py process_tasks --sleep 60", shell=True)
 		
 
+def logout_view(request,*args,**kwargs):
+	request.session['userid']=""
+	request.session['isadmin']=""
+	return HttpResponseRedirect(reverse('login-view'))
 
+def deregister_view(request,*args,**kwargs):
+	context={}
+	return render(request, 'deregister.html',context)

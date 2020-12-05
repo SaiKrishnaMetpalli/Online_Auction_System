@@ -66,3 +66,15 @@ label{
 	border-color: white !important;
 	color: #00C6FA !important;
 }
+
+.navbar-right a:hover{
+	cursor: pointer;
+}
+
+.dropdown-menu a{
+	color: #00C6FA !important;
+}
+
+.dropdown-menu a:hover{
+	text-decoration: underline !important;
+}

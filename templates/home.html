@@ -17,17 +17,26 @@
 		      <a class="navbar-brand" href="{% url 'home-view' %}">Online Auction System</a>
 		    </div>
 		    <ul class="nav navbar-nav">
-		    	{%if request.session.isadmin %}<li><a href="#">Users List</a></li>{%endif %}
 		    	<li><a href="{% url 'products-list-view' %}">Products List</a></li>
 		      	<li><a href="{% url 'upload-product-view' %}">Upload Product</a></li>
-		      	<!-- <li><a href="#">Bid Product</a></li> -->
 		      	<li><a href="{% url 'purchases-view' %}">View Purchases</a></li>		      
 		    </ul>
+		    <ul class="nav navbar-nav navbar-right">
+		    	<li><a>{{username}}</a></li>
+		    	<li class="dropdown">
+			        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+			        <span class="glyphicon glyphicon-off"></span></a>
+			        <ul class="dropdown-menu">
+			          <li><a href="{% url 'deregister-view' %}">De-register</a></li>
+			          <li><a href="{% url 'logout-view' %}">Logout</a></li>
+			        </ul>
+			    </li>
+			</ul>
 		  </div>
 		</nav>
 		<p>
 		{% block content%}
-		Hello {{username}} <br/> 
+		<br/> 
 		{% endblock %}
 		</p>
 	</body>	
