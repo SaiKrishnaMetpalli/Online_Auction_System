@@ -10,6 +10,7 @@ from decimal import Decimal
 import datetime
 from background_task import background
 from django.contrib.auth.models import User
+from django.db.models import Q
 import subprocess
 
 
@@ -28,6 +29,7 @@ def login_view(request,*args,**kwargs):
 			get_user_details=UserProfiles.objects.get(emailid=user_email, password=user_password)
 			request.session['userid'] = get_user_details.userid
 			request.session['isadmin'] = get_user_details.isadmin
+			request.session['username'] = get_user_details.firstname + " " + get_user_details.lastname
 			return HttpResponseRedirect(reverse('home-view'))
 		else:
 			context={
@@ -38,9 +40,8 @@ def login_view(request,*args,**kwargs):
 
 def home_view(request,*args,**kwargs):
 	if request.session['userid']!="":		
-		current_user = UserProfiles.objects.get(userid = request.session['userid'])
 		context={
-			"username" : current_user.firstname + " " + current_user.lastname
+			"username" : request.session['username']
 		}
 	else:
 		return HttpResponseRedirect(reverse('login-view'))
@@ -90,12 +91,16 @@ def upload_product_view(request,*args,**kwargs):
 			return HttpResponseRedirect(reverse('home-view'))
 
 	context = {
-		'form':form
+		'form':form,
+		"username" : request.session['username']
 	}
 	return render(request,"uploadproduct.html",context)
 
 
 def products_list_view(request, *args, **kwargs):
+	context={
+		"username" : request.session['username']
+	}
 	all_products = Product.objects.all()
 	print('pg no ',request.GET.get('page'))
 	if request.GET.get('page') == None:
@@ -108,9 +113,9 @@ def products_list_view(request, *args, **kwargs):
 		print('productid',product_id)
 		return HttpResponseRedirect(reverse('product-view',kwargs={"productid": product_id}))
 
-	paginator = Paginator(all_products, 8) # 8 items per page
+	paginator = Paginator(all_products, 6) # 8 items per page
 	products = paginator.page(page_number)
-	return render(request, 'viewlistings.html', {'products': products})
+	return render(request, 'viewlistings.html', {'products': products,'context': context})
 
 def product_view(request, *args, **kwargs):
 	context = {}
@@ -131,7 +136,8 @@ def product_view(request, *args, **kwargs):
 			"isadmin" : request.session['isadmin'], 
 			#"bidtime" : "Nov 17, 2020 15:45:25"
 			#"bidtime" : "2020-11-17 15:47:17.012056"
-			"bidtime" : bidtime
+			"bidtime" : bidtime,
+			"username" : request.session['username']
 		}
 	print(request.POST.get('Option'))
 
@@ -141,6 +147,7 @@ def product_view(request, *args, **kwargs):
 		"productid" : request.POST.get("productid"),
 		"product" : product,
 		"isadmin" : request.session['isadmin'],
+		"username" : request.session['username']
 		}
 
 		if request.POST.get('Option') == 'start_bidding' :	
@@ -249,5 +256,26 @@ def logout_view(request,*args,**kwargs):
 	return HttpResponseRedirect(reverse('login-view'))
 
 def deregister_view(request,*args,**kwargs):
-	context={}
+	context={
+	"message":"",
+	"btn_message":"",
+	"url":""
+	}
+	user_offering=Product.objects.filter(userid = request.session["userid"])
+	user_bidding=Product.objects.filter(winnerid = request.session["userid"])
+	if len(user_offering)!=0 or len(user_bidding)!=0:
+		context={
+		"message":"You cannot de-register, there is an active product for sale or bidding!",
+		"btn_message":"Return to Home",
+		"url":"/home"
+		}
+	else:
+		context={
+		"message":"You have successfully de-registered!",
+		"btn_message":"Return to Site",
+		"url":"/"
+		}
+		UserProfiles.objects.get(userid = request.session["userid"]).delete()
+		request.session['userid']=""
+		request.session['isadmin']=""
 	return render(request, 'deregister.html',context)
